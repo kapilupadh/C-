@@ -17,6 +17,54 @@ public:
 
     LinkedListBST() : root(nullptr) {}
 
+    // Destructor to clean up allocated memory non-recursively
+    ~LinkedListBST() {
+        if (root == nullptr) return;
+        
+        stack<Node*> st;
+        st.push(root);
+
+        while (!st.empty()) {
+            Node* current = st.top();
+            st.pop();
+
+            if (current->leftChild) st.push(current->leftChild);
+            if (current->rightChild) st.push(current->rightChild);
+
+            delete current;
+        }
+    }
+
+    // Iterative Insert operation
+    void Insert(int key) {
+        if (root == nullptr) {
+            root = new Node(key);
+            return;
+        }
+
+        Node* current = root;
+        Node* parent = nullptr;
+
+        while (current != nullptr) {
+            parent = current;
+            if (key < current->data) {
+                current = current->leftChild;
+            } else if (key > current->data) {
+                current = current->rightChild;
+            } else {
+                cout << "Key " << key << " already exists!\n";
+                return;
+            }
+        }
+
+        // Allocate node only when insertion position is found
+        if (key < parent->data) {
+            parent->leftChild = new Node(key);
+        } else {
+            parent->rightChild = new Node(key);
+        }
+    }
+
     // Non-recursive Preorder Traversal (Root -> Left -> Right)
     void preorder() {
         if (root == nullptr) {
@@ -33,7 +81,6 @@ public:
 
             cout << current->data << " ";
 
-            // Push right child first so that left child is processed first
             if (current->rightChild != nullptr) {
                 st.push(current->rightChild);
             }
@@ -55,25 +102,22 @@ public:
         Node* current = root;
 
         while (current != nullptr || !st.empty()) {
-            // Reach the leftmost node of the current subtree
             while (current != nullptr) {
                 st.push(current);
                 current = current->leftChild;
             }
 
-            // Current is nullptr here, pop item from stack
             current = st.top();
             st.pop();
 
             cout << current->data << " ";
 
-            // Visit the right subtree
             current = current->rightChild;
         }
         cout << endl;
     }
 
-    // Non-recursive Postorder Traversal (Left -> Right -> Root) using 2 Stacks
+    // Non-recursive Postorder Traversal (Left -> Right -> Root)
     void postorder() {
         if (root == nullptr) {
             cout << "Tree is Empty\n";
@@ -96,7 +140,6 @@ public:
             }
         }
 
-        // Print all elements from the second stack
         while (!st2.empty()) {
             cout << st2.top()->data << " ";
             st2.pop();
@@ -108,21 +151,13 @@ public:
 int main() {
     LinkedListBST BST;
 
-    /*
-         Constructing sample tree:
-                   1
-                 /   \
-                2     3
-               / \
-              4   5
-    */
-    BST.root = new Node(1);
-    BST.root->leftChild = new Node(2);
-    BST.root->rightChild = new Node(3);
-    BST.root->leftChild->leftChild = new Node(4);
-    BST.root->leftChild->rightChild = new Node(5);
+    BST.Insert(50);
+    BST.Insert(70);
+    BST.Insert(30);
+    BST.Insert(20);
+    BST.Insert(40);
 
-    cout << "Preorder Traversal:  ";
+    cout<< "Preorder Traversal:  ";
     BST.preorder();
 
     cout << "Inorder Traversal:   ";
